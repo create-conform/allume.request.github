@@ -1,0 +1,6 @@
+[submodule "cc.string"]
+	path = cc.string
+	url = https://github.com/create-conform/cc.string
+[submodule "cc.version"]
+	path = cc.version
+	url = https://github.com/create-conform/cc.version
