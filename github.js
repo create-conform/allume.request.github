@@ -33,7 +33,7 @@
 
                 var ghConf;
                 if (profile.repositories[selector.repository.namespace] && profile.repositories[selector.repository.namespace].github) {
-                    ghConf = profile.github;
+                    ghConf = profile.repositories[selector.repository.namespace].github;
                 }
                 else if (profile.github) {
                     ghConf = profile.github;
