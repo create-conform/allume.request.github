@@ -17,7 +17,7 @@
     var URI_PATH_GITHUBAPI_RELEASES_TEMPLATE = "$NAME/releases";
     var URI_PATH_GITHUBAPI_BRANCH_TEMPLATE = "$NAME/tarball/";
 
-    function PKXRequestGitHub() {
+    function AllumeRequestGitHub() {
         var self = this;
 
         this.process = function(selector) {
@@ -27,21 +27,42 @@
 
             return new Promise(function (resolve, reject) {
                 var headers = { "user-agent": "allume" };
-                var profile = typeof allume != "undefined"? allume.parameters.profile : {};
-                if (profile.githubToken) {
-                    headers["Authorization"] = "token " + profile.githubToken;
+
+                // get active profile from config
+                var profile = typeof allume != "undefined"? allume.config.profiles[allume.config.activeProfile] : {};
+
+                var ghConf;
+                if (profile.repositories[selector.repository.namespace] && profile.repositories[selector.repository.namespace].github) {
+                    ghConf = profile.github;
                 }
-                else if (profile.githubUsername) {
-                    headers["Authorization"] = "Basic " + (profile.githubUsername + ":" + (profile.githubPassword? profile.githubPassword : "")).toBase64();
+                else if (profile.github) {
+                    ghConf = profile.github;
+                }
+                else if (typeof allume != "undefined" && allume.config && allume.config.github) {
+                    ghConf = allume.config.github;
                 }
 
-                if (profile.githubEnableBranch) {
-                    selector.uri = selector.repository + URI_PATH_GITHUBAPI_BRANCH_TEMPLATE + profile.githubEnableBranch;
-                    resolve({"strip": 1, "headers" : headers});
+                // setup github data
+                var ghUsername = ghConf? ghConf.username : null;
+                var ghPassword = ghConf? ghConf.password : null;
+                var ghToken = ghConf? ghConf.token : null;
+                var ghBranch = ghConf? ghConf.branch : null;
+                var ghEnablePreRelease = ghConf? ghConf.enablePreRelease : null;
+
+                if (ghToken) {
+                    headers["Authorization"] = "token " + ghToken;
+                }
+                else if (ghUsername) {
+                    headers["Authorization"] = "Basic " + (ghUsername + ":" + (ghPassword ? ghPassword : "")).toBase64();
+                }
+
+                if (ghBranch) {
+                    selector.uri = selector.repository.url + URI_PATH_GITHUBAPI_BRANCH_TEMPLATE + ghBranch;
+                    resolve({"strip": 1, "headers": headers});
                     return;
                 }
 
-                var uriReleases = selector.parseURI(selector.repository + URI_PATH_GITHUBAPI_RELEASES_TEMPLATE);
+                var uriReleases = selector.parseURI(selector.repository.url + URI_PATH_GITHUBAPI_RELEASES_TEMPLATE);
 
                 uriReleases.open().then(function (stream) {
                     stream.headers = headers;
@@ -55,7 +76,7 @@
                             if (releases[r].draft) {
                                 continue;
                             }
-                            if (releases[r].prerelease && !profile.githubEnablePreReleases) {
+                            if (releases[r].prerelease && !ghEnablePreRelease) {
                                 continue;
                             }
                             var tagName = releases[r].tag_name;
@@ -66,7 +87,7 @@
                             count++;
                         }
                         if (count == 0) {
-                            reject(new Error("Package '" + selector.package + "' only has draft releases " + (profile.githubEnablePreReleases? "" : "and/or pre-releases ") + "in the GitHub repository."));
+                            reject(new Error("Package '" + selector.package + "' only has draft releases " + (ghEnablePreRelease? "" : "and/or pre-releases ") + "in the GitHub repository."));
                             return;
                         }
 
@@ -94,7 +115,7 @@
         });
     }
 
-    var processor = new PKXRequestGitHub();
+    var processor = new AllumeRequestGitHub();
     define(function () {
         return processor;
     });
