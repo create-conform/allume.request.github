@@ -66,8 +66,11 @@
                 }
 
                 function ghDone(release) {
+                    if (release instanceof Error) {
+                        //console.error(release);
+                        release = null;
+                    }
                     if (ghEnableCache) {
-                        //var cacheVolume = config.getVolume();
                         config.getVolume().then(function(cacheVolume) {
                             cacheVolume.query(PATH_CACHE + selector.package + "*." + EXT_PKX).then(function(uriList) {
                                 var cache = {};
@@ -80,9 +83,6 @@
 
                                 // get highest version from cache
                                 var highestCache = version.find(cache, selector.package, selector.upgradable || version.UPGRADABLE_NONE);
-                                if (highestCache) {
-                                    highestCache = highestCache.path;
-                                }
 
                                 if (!release) {
                                     // resolve highest cache version
