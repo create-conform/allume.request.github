@@ -70,7 +70,6 @@
                         //var cacheVolume = config.getVolume();
                         config.getVolume().then(function(cacheVolume) {
                             cacheVolume.query(PATH_CACHE + selector.package + "*." + EXT_PKX).then(function(uriList) {
-                                console.log("DEBUG", uriList);
                                 var cache = {};
                                 for (var u in uriList) {
                                     if (uriList[u].path.lastIndexOf("/") != uriList[u].path.length - 1) {
