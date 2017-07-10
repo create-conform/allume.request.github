@@ -1,6 +1,6 @@
 {
   "name": "allume.request.github",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "title": "Allume Request GitHub Library",
   "description": "Allume request module for fetching releases from GitHub.",
   "main": "github.js",
