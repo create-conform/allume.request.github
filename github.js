@@ -72,7 +72,7 @@
                     }
                     if (ghEnableCache) {
                         config.getVolume().then(function(cacheVolume) {
-                            cacheVolume.query(PATH_CACHE + selector.package + "*." + EXT_PKX).then(function(uriList) {
+                            cacheVolume.query(PATH_CACHE).then(function(uriList) {
                                 var cache = {};
                                 for (var u in uriList) {
                                     if (uriList[u].path.lastIndexOf("/") != uriList[u].path.length - 1) {
@@ -111,25 +111,32 @@
                                                 resolveURI(release.tarball_url);
                                             };
                                             
+                                            var releaseErr;
                                             var cacheURI = cacheVolume.getURI(PATH_CACHE + id + "." + EXT_PKX);
                                             cacheURI.open(io.ACCESS_OVERWRITE, true).then(function(cacheStream) {
+                                                function cacheDone(e) {
+                                                    if (e instanceof Error) {
+                                                        releaseErr = e;
+                                                    }
+                                                    cacheStream.close().then(function() {
+                                                        repoStream.close().then(cacheResolve, cacheResolve);
+                                                    }, cacheFail);
+                                                }
                                                 function cacheFail() {
                                                     cacheStream.close().then(repoFail, repoFail);
                                                 }
                                                 function cacheResolve() {
+                                                    if (releaseErr) {
+                                                        // an error occurred while downloading the tarrball (could be CORS), fallback to highest cached version.
+                                                        resolveURI(highestCache);
+                                                        return;
+                                                    }
                                                     resolveURI(cacheURI);
                                                 }
                                                 repoStream.headers = headers;
-                                                repoStream.copyTo(cacheStream).then(function() {
-                                                    cacheStream.close().then(function() {
-                                                        repoStream.close().then(cacheResolve, cacheResolve);
-                                                    }, cacheFail);
-                                                }, cacheFail);
+                                                repoStream.copyTo(cacheStream).then(cacheDone, cacheDone);
                                             }, repoFail);
-                                        }, function(e) {
-                                            // an error occurred while downloading the tarrball (could be CORS), fallback to highest cached version.
-                                            resolveURI(highestCache);
-                                        });
+                                        }, resolveURI);
                                     }
                                 }
                             }, function() {
