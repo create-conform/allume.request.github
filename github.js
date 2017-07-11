@@ -80,7 +80,7 @@
                                 if (uriList && uriList.code == "ENOENT") {
                                     uriList = [];
                                 }
-                                else {
+                                else if (uriList && uriList.code) {
                                     console.error("Cache disk error.", uriList);
                                     resolveURI(release? release.tarball_url : null);
                                 }
