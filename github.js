@@ -76,7 +76,14 @@
 
                     if (ghEnableCache) {
                         config.getVolume().then(function(cacheVolume) {
-                            cacheVolume.query(PATH_CACHE).then(function(uriList) {
+                            function cacheQueryDone(uriList) {
+                                if (uriList && uriList.code == "ENOENT") {
+                                    uriList = [];
+                                }
+                                else {
+                                    console.error("Cache disk error.", uriList);
+                                    resolveURI(release? release.tarball_url : null);
+                                }
                                 var cache = {};
                                 for (var u in uriList) {
                                     if (uriList[u].path.lastIndexOf("/") != uriList[u].path.length - 1) {
@@ -142,10 +149,9 @@
                                         }, resolveURI);
                                     }
                                 }
-                            }, function() {
-                                // cache path error
-                                resolveURI(release? release.tarball_url : null);
-                            });
+                            }
+
+                            cacheVolume.query(PATH_CACHE).then(cacheQueryDone, cacheQueryDone);
                         }, function() {
                             // cache path error
                             resolveURI(release? release.tarball_url : null);
