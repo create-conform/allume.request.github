@@ -14,6 +14,7 @@
 (function() {
     var REQUEST_PROC_NAME = "github";
     var HOST_GITHUBAPI = "api.github.com";
+    var HOST_GITHUB = "github.com";
     var URI_PATH_GITHUBAPI_RELEASES_TEMPLATE = "$NAME/releases";
     var URI_PATH_GITHUBAPI_BRANCH_TEMPLATE = "$NAME/tarball/";
     var PATH_CACHE = "allume.request.github/cache/";
@@ -23,6 +24,10 @@
         var self = this;
 
         this.process = function(selector) {
+            if (selector.uri.authority.host == HOST_GITHUB) {
+                selector.uri.authority.host = HOST_GITHUBAPI;
+                selector.uri.path = "/repos" + selector.uri.path;
+            }
             if (selector.uri.authority.host != HOST_GITHUBAPI) {
                 return;
             }
