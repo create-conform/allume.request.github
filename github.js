@@ -24,9 +24,12 @@
         var self = this;
 
         this.process = function(selector) {
+            var direct;
+
             if (selector.uri.authority.host == HOST_GITHUB) {
                 selector.uri.authority.host = HOST_GITHUBAPI;
-                selector.uri.path = "/repos" + selector.uri.path;
+                selector.uri.path = "/repos" + (selector.uri.path.lastIndexOf("/") == selector.uri.path.length - 1? selector.uri.path.substr(0, selector.uri.path.length - 2) : selector.uri.path);
+                direct = true;
             }
             if (selector.uri.authority.host != HOST_GITHUBAPI) {
                 return;
@@ -65,7 +68,12 @@
                 }
 
                 if (ghBranch) {
-                    selector.uri = selector.repository.url + URI_PATH_GITHUBAPI_BRANCH_TEMPLATE + ghBranch;
+                    if (!direct) {
+                        selector.uri = selector.repository.url + URI_PATH_GITHUBAPI_BRANCH_TEMPLATE + ghBranch;
+                    }
+                    else {
+                        selector.uri.path += "/tarball/" + ghBranch;
+                    }
                     resolve({"strip": 1, "headers": headers});
                     return;
                 }
@@ -189,7 +197,7 @@
                     }
                 }
 
-                var uriReleases = selector.parseURI(selector.repository.url + URI_PATH_GITHUBAPI_RELEASES_TEMPLATE);
+                var uriReleases = direct? selector.uri.toString() + "/releases" : selector.parseURI(selector.repository.url + URI_PATH_GITHUBAPI_RELEASES_TEMPLATE);
 
                 uriReleases.open().then(function (stream) {
                     stream.headers = headers;
