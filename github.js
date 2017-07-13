@@ -197,7 +197,14 @@
                     }
                 }
 
-                var uriReleases = direct? selector.uri.toString() + "/releases" : selector.parseURI(selector.repository.url + URI_PATH_GITHUBAPI_RELEASES_TEMPLATE);
+                var uriReleases;
+                if (direct) {
+                    selector.uri.path += "/releases";
+                    uriReleases = selector.uri;
+                }
+                else {
+                    uriReleases = selector.parseURI(selector.repository.url + URI_PATH_GITHUBAPI_RELEASES_TEMPLATE);
+                }
 
                 uriReleases.open().then(function (stream) {
                     stream.headers = headers;
