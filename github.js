@@ -28,8 +28,8 @@
 
             if (selector.uri.authority.host == HOST_GITHUB) {
                 selector.uri.authority.host = HOST_GITHUBAPI;
+                direct = selector.uri.path.substr(selector.uri.path.lastIndexOf("/") + 1);
                 selector.uri.path = "/repos" + (selector.uri.path.lastIndexOf("/") == selector.uri.path.length - 1? selector.uri.path.substr(0, selector.uri.path.length - 2) : selector.uri.path);
-                direct = true;
             }
             if (selector.uri.authority.host != HOST_GITHUBAPI) {
                 return;
@@ -113,7 +113,7 @@
                                     resolveURI(highestCache);
                                 }
                                 else {
-                                    var id = selector.package + "." + release.tag_name;
+                                    var id = (direct? direct : selector.package) + "." + release.tag_name;
                                     var found;
                                     for (var u in cache) {
                                         if (u == id) {
@@ -225,7 +225,12 @@
                             if (tagName.substr(0,1) == "v") {
                                 tagName = tagName.substr(1);
                             }
-                            versions[selector.name + "." + tagName] = releases[r];
+                            if (direct) {
+                                versions[tagName] = releases[r];
+                            }
+                            else {
+                                versions[selector.name + "." + tagName] = releases[r];
+                            }
                             count++;
                         }
                         if (count == 0) {
@@ -233,7 +238,7 @@
                             return;
                         }
 
-                        var release = version.find(versions, selector.package, selector.upgradable || version.UPGRADABLE_NONE);
+                        var release = version.find(versions, direct? "" : selector.package, selector.upgradable || version.UPGRADABLE_NONE);
                         
                         ghDone(release);
                     }, ghDone);
