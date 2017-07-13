@@ -25,10 +25,13 @@
 
         this.process = function(selector) {
             var direct;
+            var directRepo;
 
             if (selector.uri.authority.host == HOST_GITHUB) {
                 selector.uri.authority.host = HOST_GITHUBAPI;
                 direct = selector.uri.path.substr(selector.uri.path.lastIndexOf("/") + 1);
+                directRepo = selector.uri.path.substr(0, selector.uri.path.lastIndexOf("/"));
+                directRepo = directRepo.substr(directRepo.lastIndexOf("/") + 1);
                 selector.uri.path = "/repos" + (selector.uri.path.lastIndexOf("/") == selector.uri.path.length - 1? selector.uri.path.substr(0, selector.uri.path.length - 2) : selector.uri.path);
             }
             if (selector.uri.authority.host != HOST_GITHUBAPI) {
@@ -113,7 +116,7 @@
                                     resolveURI(highestCache);
                                 }
                                 else {
-                                    var id = (direct? direct : selector.package) + "." + release.tag_name;
+                                    var id = (direct? directRepo + "/" + direct : selector.package) + "." + release.tag_name;
                                     var found;
                                     for (var u in cache) {
                                         if (u == id) {
@@ -164,7 +167,7 @@
                                 }
                             }
 
-                            cacheVolume.query(PATH_CACHE).then(cacheQueryDone, cacheQueryDone);
+                            cacheVolume.query(PATH_CACHE + (direct? (directRepo + "/") : "")).then(cacheQueryDone, cacheQueryDone);
                         }, function() {
                             // cache path error
                             resolveURI(release? release.tarball_url : null);
