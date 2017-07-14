@@ -119,7 +119,7 @@
                                     var id = (direct? directRepo + "/" + direct : (selector.repository.namespace + (selector.repository.namespace != ""? "/" : "") + selector.package)) + "." + release.tag_name;
                                     var found;
                                     for (var u in cache) {
-                                        if (u == direct? direct : (selector.package + "." + release.tag_name)) {
+                                        if (u == (direct? direct : (selector.package + "." + release.tag_name))) {
                                             found = u;
                                             break;
                                         }
