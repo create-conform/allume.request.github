@@ -27,6 +27,7 @@
         this.process = function(selector) {
             var direct;
             var directRepo;
+            var triedCORSProxy;
 
             if (selector.uri.authority.host == HOST_GITHUB) {
                 selector.uri.authority.host = HOST_GITHUBAPI;
@@ -90,7 +91,6 @@
 
                     // variable will contain error message when download of tarball url fails.
                     var releaseErr;
-                    var triedCORSProxy;
 
                     if (ghEnableCache) {
                         config.getVolume().then(function(cacheVolume) {
