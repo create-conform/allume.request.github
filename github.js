@@ -15,6 +15,7 @@
     var REQUEST_PROC_NAME = "github";
     var HOST_GITHUBAPI = "api.github.com";
     var HOST_GITHUB = "github.com";
+    var URI_PATH_CORS_PROXY = "https://cors-anywhere.herokuapp.com/";
     var URI_PATH_GITHUBAPI_RELEASES_TEMPLATE = "$NAME/releases";
     var URI_PATH_GITHUBAPI_BRANCH_TEMPLATE = "$NAME/tarball/";
     var PATH_CACHE = "allume.request.github/cache/";
@@ -89,6 +90,7 @@
 
                     // variable will contain error message when download of tarball url fails.
                     var releaseErr;
+                    var triedCORSProxy;
 
                     if (ghEnableCache) {
                         config.getVolume().then(function(cacheVolume) {
@@ -187,7 +189,15 @@
                             return;
                         }
                         else if (!uri && releaseErr) {
-                            reject(new Error("Downloading of package '" + selector.package + "' from GitHub failed. If you are running this in a browser, CORS might be the problem."));
+                            if (!release || triedCORSProxy) {
+                                reject(new Error("Downloading of package '" + selector.package + "' from GitHub failed. If you are running this in a browser, CORS might be the problem."));
+                            }
+                            else if (release) {
+                                release.tarball_url = URI_PATH_CORS_PROXY + release.tarball_url;
+                                triedCORSProxy = true;
+
+                                ghDone(release);
+                            }
                             return;
                         }
                         try {
