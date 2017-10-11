@@ -1,13 +1,15 @@
 {
   "name": "allume.request.github",
-  "version": "0.1.26",
+  "version": "0.2.0",
   "title": "Allume Request GitHub Library",
   "description": "Allume request module for fetching releases from GitHub.",
-  "main": "github.js",
-  "pkxDependencies": [
-    "cc.version.0.1",
-    "cc.string.0.1",
-    "cc.config.0.1",
-    "cc.io.0.1"
-  ]
+  "pkx" : {
+    "main": "github.js",
+    "dependencies": [
+      "cc.version.0.2",
+      "cc.string.0.2",
+      "cc.config.0.2",
+      "cc.io.0.2"
+    ]
+  }
 }
