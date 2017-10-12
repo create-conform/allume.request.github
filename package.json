@@ -1,6 +1,6 @@
 {
   "name": "allume.request.github",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "title": "Allume Request GitHub Library",
   "description": "Allume request module for fetching releases from GitHub.",
   "pkx" : {
